@@ -1,6 +1,6 @@
 # DuckDB Demo
 
-This is a quick intro to DuckDB and some of it's basic features. Most of this can be found in the [DuckDB Documentation](https://duckdb.org/docs/sql/introduction#creating-a-new-table).
+This is a quick intro to DuckDB and some of it's basic features. Most of this is taken from the [DuckDB Documentation](https://duckdb.org/docs/sql/introduction#creating-a-new-table).
 
 ## DuckDB Installation
 
@@ -97,11 +97,38 @@ INSERT INTO weather (date, city, temp_hi, temp_lo)
 VALUES ('1994-11-29', 'Hayward', 54, 37);
 ```
 
-You can also read data from files. **Note**: You have to create the table first.
+### Reading and Writing Files
+
+One awesome benefit of using DuckDB is that you can read and write data to and from files directly. This makes it really simple to load CSV or Parquet files, transform the data, and write it back out to a file system, such as a data lake.
 
 ```sql
+-- Copy data to a table from CSV (table must exist already)
 COPY weather
 FROM 'weather.csv';
+```
+
+```sql
+-- Write data to a CSV file
+COPY (SELECT * FROM weather) TO 'weather.csv' (FORMAT 'csv')
+```
+
+```sql
+-- Write data to a snappy compressed parquet file
+COPY (SELECT * FROM weather) TO 'weather.parquet' (FORMAT 'parquet')
+```
+
+It also works with `INSERT` statements.
+
+```sql
+-- Insert rows into a table from a parquet file
+INSERT INTO weather SELECT * FROM read_parquet('weather.parquet');
+```
+
+And views.
+
+```sql
+-- Create a view from a parquet file
+CREATE VIEW weather_vw AS SELECT * FROM read_parquet('weather.parquet');
 ```
 
 ### Querying a Table
@@ -252,4 +279,6 @@ DELETE FROM tablename; -- Deletes all rows in a table
 
 ## Next Steps
 
-From here you can jump over to the [demo.ipynb](./demo.ipynb) notebook to see how the [DuckDB Python API](https://duckdb.org/docs/api/python/overview) works. If you want to learn more about DuckDB, check out the [DuckDB Documentation](https://duckdb.org/docs/). It has tons of integrations and available APIs.
+From here you can jump over to the [demo.ipynb](./demo.ipynb) notebook to see how the [DuckDB Python API](https://duckdb.org/docs/api/python/overview) works.
+
+If you want to learn more about DuckDB, check out the [DuckDB Documentation](https://duckdb.org/docs/). It has tons of integrations and available APIs.
